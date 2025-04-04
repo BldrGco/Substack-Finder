@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Substack Finder - Discover Similar Newsletters</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #FF6719;
+            --secondary: #1E293B;
+            --light: #F8FAFC;
+            --dark: #0F172A;
+            --accent: #5271FF;
+            --gray: #94A3B8;
+            --gray-light: #E2E8F0;
+            --success: #10B981;
+            --warning: #FBBF24;
+            --danger: #EF4444;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .subheader {
+            font-size: 1.2rem;
+            color: var(--gray);
+            max-width: 800px;
+            margin: 0 auto 2rem;
+        }
+        
+        .search-section {
+            background-color: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            margin-bottom: 3rem;
+        }
+        
+        .search-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .input-group label {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--secondary);
+        }
+        
+        .input-wrapper {
+            display: flex;
+            position: relative;
+        }
+        
+        .input-wrapper i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+        
+        input[type="url"] {
+            flex: 1;
+            padding: 1rem 1rem 1rem 2.5rem;
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+        
+        input[type="url"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 103, 25, 0.1);
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        button:hover {
+            background-color: #E55A0E;
+        }
+        
+        button:disabled {
+            background-color: var(--gray);
+            cursor: not-allowed;
+        }
+        
+        .button-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+        
+        .loader {
+            display: none;
+            margin: 2rem auto;
+            text-align: center;
+        }
+        
+        .loader-spinner {
+            border: 4px solid var(--gray-light);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .results-section {
+            display: none;
+            margin-top: 3rem;
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .results-title {
+            font-size: 1.5rem;
+            color: var(--secondary);
+        }
+        
+        .topics-container {
+            background-color: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+        
+        .topics-title {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            color: var(--secondary);
+        }
+        
+        .topics-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .topic {
+            background-color: var(--gray-light);
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .topic.primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .topic.secondary {
+            background-color: var(--accent);
+            color: white;
+        }
+        
+        .newsletters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .newsletter-card {
+            background-color: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .newsletter-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-img {
+            height: 160px;
+            background-color: var(--gray-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+        }
+        
+        .card-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .card-content {
+            padding: 1.5rem;
+        }
+        
+        .card-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--secondary);
+        }
+        
+        .card-author {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 1rem;
+        }
+        
+        .card-description {
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            color: var(--secondary);
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .card-tag {
+            background-color: var(--gray-light);
+            border-radius: 20px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.8rem;
+        }
+        
+        .card-link {
+            display: inline-block;
+            text-decoration: none;
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .card-link:hover {
+            text-decoration: underline;
+        }
+        
+        .error-message {
+            display: none;
+            background-color: #FEF2F2;
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            text-align: center;
+        }
+        
+        footer {
+            margin-top: 5rem;
+            text-align: center;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        @media screen and (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .search-section {
+                padding: 1.5rem;
+            }
+            
+            .newsletters-grid {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Substack Finder</h1>
+            <p class="subheader">Enter your Substack URL to discover 30 similar newsletters that align with your content. We'll also suggest primary and secondary topics to help you better understand your niche.</p>
+        </header>
+        
+        <main>
+            <section class="search-section">
+                <form class="search-form" id="searchForm">
+                    <div class="input-group">
+                        <label for="substackUrl">Your Substack URL</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-link"></i>
+                            <input type="url" id="substackUrl" placeholder="https://yourname.substack.com" required>
+                        </div>
+                    </div>
+                    <div id="errorMessage" class="error-message"></div>
+                    <div class="button-wrapper">
+                        <button type="submit" id="searchButton">Find Similar Newsletters</button>
+                    </div>
+                </form>
+            </section>
+            
+            <div class="loader" id="loader">
+                <div class="loader-spinner"></div>
+                <p>Searching the Substack ecosystem...</p>
+            </div>
+            
+            <section class="results-section" id="resultsSection">
+                <div class="results-header">
+                    <h2 class="results-title">Results for <span id="searchedUrl"></span></h2>
+                </div>
+                
+                <div class="topics-container">
+                    <h3 class="topics-title">Suggested Topics & Tags</h3>
+                    <div class="topics-grid" id="topicsGrid">
+                        <!-- Topics and tags will be dynamically added here -->
+                    </div>
+                </div>
+                
+                <h3 class="topics-title">Similar Newsletters</h3>
+                <div class="newsletters-grid" id="newslettersGrid">
+                    <!-- Newsletter cards will be dynamically added here -->
+                </div>
+            </section>
+        </main>
+        
+        <footer>
+            <p>© 2025 Substack Finder | Built for the Substack community</p>
+        </footer>
+    </div>
+
+    <script>
+        // Sample data - in a real implementation, this would come from an API call
+        const topics = [
+            'Technology', 'Business', 'Finance', 'Politics', 
+            'Science', 'Culture', 'Art', 'Literature', 
+            'Music', 'Film', 'Philosophy', 'Health', 
+            'Fitness', 'Food', 'Travel', 'Sports',
+            'Education', 'Psychology', 'History', 'Religion',
+            'Design', 'Fashion', 'Gaming', 'Cryptocurrency'
+        ];
+        
+        const tags = [
+            'Artificial Intelligence', 'Startups', 'Investing', 'Policy',
+            'Climate Change', 'Interviews', 'Book Reviews', 'Fiction',
+            'Album Reviews', 'Documentaries', 'Ethics', 'Mental Health',
+            'Nutrition', 'Cooking', 'Adventure', 'Basketball',
+            'Learning', 'Relationships', 'Medieval', 'Spirituality',
+            'UX', 'Streetwear', 'Indie Games', 'NFTs'
+        ];
+        
+        // Sample newsletters data
+        const generateMockNewsletters = (count) => {
+            const newsletters = [];
+            const authors = [
+                'Anna Johnson', 'Mark Williams', 'Sarah Davis', 'Robert Miller',
+                'Emily Wilson', 'Michael Brown', 'Jessica Taylor', 'David Jones',
+                'Lisa Martinez', 'James Anderson', 'Jennifer Nelson', 'Thomas White',
+                'Margaret Harris', 'Charles Lee', 'Linda Garcia', 'Christopher Clark'
+            ];
+            
+            for (let i = 0; i < count; i++) {
+                const randomTopicIndex = Math.floor(Math.random() * topics.length);
+                const randomTagsCount = Math.floor(Math.random() * 3) + 1;
+                const newsletterTags = [];
+                
+                for (let j = 0; j < randomTagsCount; j++) {
+                    const randomTagIndex = Math.floor(Math.random() * tags.length);
+                    if (!newsletterTags.includes(tags[randomTagIndex])) {
+                        newsletterTags.push(tags[randomTagIndex]);
+                    }
+                }
+                
+                const authorIndex = Math.floor(Math.random() * authors.length);
+                
+                newsletters.push({
+                    title: `${topics[randomTopicIndex]} Insights`,
+                    author: authors[authorIndex],
+                    description: `A deep dive into ${topics[randomTopicIndex].toLowerCase()} trends, news, and perspectives. Weekly insights that will expand your understanding.`,
+                    tags: newsletterTags,
+                    url: `https://${topics[randomTopicIndex].toLowerCase().replace(/\s+/g, '')}-insights.substack.com`,
+                    image: `/api/placeholder/400/320`
+                });
+            }
+            
+            return newsletters;
+        };
+        
+        // Form submission handler
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const substackUrl = document.getElementById('substackUrl').value;
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Basic validation
+            if (!substackUrl.includes('substack.com')) {
+                errorMessage.textContent = 'Please enter a valid Substack URL.';
+                errorMessage.style.display = 'block';
+                return;
+            }
+            
+            // Hide error message if it was previously shown
+            errorMessage.style.display = 'none';
+            
+            // Show loader
+            document.getElementById('loader').style.display = 'block';
+            
+            // Simulate API call with timeout
+            setTimeout(() => {
+                displayResults(substackUrl);
+            }, 2000);
+        });
+        
+        function displayResults(url) {
+            // Hide loader
+            document.getElementById('loader').style.display = 'none';
+            
+            // Show results section
+            document.getElementById('resultsSection').style.display = 'block';
+            
+            // Set searched URL
+            document.getElementById('searchedUrl').textContent = new URL(url).hostname;
+            
+            // Generate random primary and secondary topics
+            const primaryTopic = topics[Math.floor(Math.random() * topics.length)];
+            
+            let secondaryTopic;
+            do {
+                secondaryTopic = topics[Math.floor(Math.random() * topics.length)];
+            } while (secondaryTopic === primaryTopic);
+            
+            // Generate random related tags (3-5)
+            const relatedTagsCount = Math.floor(Math.random() * 3) + 3;
+            const relatedTags = [];
+            
+            for (let i = 0; i < relatedTagsCount; i++) {
+                const randomTag = tags[Math.floor(Math.random() * tags.length)];
+                if (!relatedTags.includes(randomTag)) {
+                    relatedTags.push(randomTag);
+                }
+            }
+            
+            // Display topics and tags
+            const topicsGrid = document.getElementById('topicsGrid');
+            topicsGrid.innerHTML = '';
+            
+            const primaryTopicElement = document.createElement('div');
+            primaryTopicElement.className = 'topic primary';
+            primaryTopicElement.textContent = `Primary: ${primaryTopic}`;
+            topicsGrid.appendChild(primaryTopicElement);
+            
+            const secondaryTopicElement = document.createElement('div');
+            secondaryTopicElement.className = 'topic secondary';
+            secondaryTopicElement.textContent = `Secondary: ${secondaryTopic}`;
+            topicsGrid.appendChild(secondaryTopicElement);
+            
+            relatedTags.forEach(tag => {
+                const tagElement = document.createElement('div');
+                tagElement.className = 'topic';
+                tagElement.textContent = tag;
+                topicsGrid.appendChild(tagElement);
+            });
+            
+            // Generate and display newsletters
+            const newsletters = generateMockNewsletters(30);
+            const newslettersGrid = document.getElementById('newslettersGrid');
+            newslettersGrid.innerHTML = '';
+            
+            newsletters.forEach(newsletter => {
+                const card = document.createElement('div');
+                card.className = 'newsletter-card';
+                
+                card.innerHTML = `
+                    <div class="card-img">
+                        <img src="${newsletter.image}" alt="${newsletter.title}">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">${newsletter.title}</h3>
+                        <p class="card-author">By ${newsletter.author}</p>
+                        <p class="card-description">${newsletter.description}</p>
+                        <div class="card-tags">
+                            ${newsletter.tags.map(tag => `<span class="card-tag">${tag}</span>`).join('')}
+                        </div>
+                        <a href="${newsletter.url}" class="card-link" target="_blank">Visit Newsletter</a>
+                    </div>
+                `;
+                
+                newslettersGrid.appendChild(card);
+            });
+            
+            // Scroll to results
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
