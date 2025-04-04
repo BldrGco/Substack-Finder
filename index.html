@@ -337,8 +337,7 @@
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>Substack Finder</h1>
+</h1>
             <p class="subheader">Enter your Substack URL to discover 30 similar newsletters that align with your content. We'll also suggest primary and secondary topics to help you better understand your niche.</p>
         </header>
         
@@ -389,14 +388,17 @@
     </div>
 
     <script>
-        // Sample data - in a real implementation, this would come from an API call
+        // Comprehensive list of topics and tags for Substack content analysis
         const topics = [
             'Technology', 'Business', 'Finance', 'Politics', 
             'Science', 'Culture', 'Art', 'Literature', 
             'Music', 'Film', 'Philosophy', 'Health', 
             'Fitness', 'Food', 'Travel', 'Sports',
             'Education', 'Psychology', 'History', 'Religion',
-            'Design', 'Fashion', 'Gaming', 'Cryptocurrency'
+            'Design', 'Fashion', 'Gaming', 'Cryptocurrency',
+            'Media', 'Environment', 'Economics', 'Society',
+            'Foreign Policy', 'Law', 'Medicine', 'Parenting',
+            'Urban Planning', 'Marketing', 'Productivity', 'Career'
         ];
         
         const tags = [
@@ -405,39 +407,305 @@
             'Album Reviews', 'Documentaries', 'Ethics', 'Mental Health',
             'Nutrition', 'Cooking', 'Adventure', 'Basketball',
             'Learning', 'Relationships', 'Medieval', 'Spirituality',
-            'UX', 'Streetwear', 'Indie Games', 'NFTs'
+            'UX', 'Streetwear', 'Indie Games', 'NFTs',
+            'Data Science', 'Space', 'Neuroscience', 'Venture Capital',
+            'Global Affairs', 'Mindfulness', 'Personal Stories', 'Opinion',
+            'Analysis', 'Longreads', 'News', 'Commentary',
+            'Investigative', 'Case Studies', 'How-To', 'Explainers',
+            'Future Tech', 'Digital Rights', 'Social Justice', 'Remote Work',
+            'Sustainability', 'Innovation', 'Leadership', 'Growth'
         ];
         
-        // Sample newsletters data
-        const generateMockNewsletters = (count) => {
+        // Keywords associated with each topic for content analysis
+        const topicKeywords = {
+            'Technology': ['tech', 'technology', 'software', 'hardware', 'digital', 'computers', 'programming', 'code', 'innovation', 'gadgets', 'apps', 'internet'],
+            'Business': ['business', 'entrepreneurship', 'company', 'industry', 'corporate', 'startup', 'ceo', 'founder', 'growth', 'strategy', 'management'],
+            'Finance': ['finance', 'money', 'investing', 'wealth', 'stock', 'market', 'economy', 'investment', 'bitcoin', 'banking', 'financial', 'portfolio'],
+            'Politics': ['politics', 'government', 'policy', 'election', 'democracy', 'senate', 'congress', 'political', 'law', 'republican', 'democrat'],
+            'Science': ['science', 'scientific', 'research', 'laboratory', 'biology', 'chemistry', 'physics', 'experiment', 'discovery', 'data', 'scientists'],
+            'Culture': ['culture', 'cultural', 'society', 'social', 'community', 'trends', 'identity', 'values', 'traditions', 'heritage', 'norms'],
+            'Art': ['art', 'artist', 'artistic', 'painting', 'sculpture', 'gallery', 'museum', 'creative', 'visual', 'exhibition', 'contemporary'],
+            'Literature': ['literature', 'book', 'novel', 'author', 'writing', 'fiction', 'nonfiction', 'poetry', 'literary', 'essay', 'writer', 'stories'],
+            'Music': ['music', 'album', 'song', 'band', 'artist', 'concert', 'performance', 'audio', 'lyrics', 'genre', 'musician', 'playlist', 'spotify'],
+            'Film': ['film', 'movie', 'cinema', 'director', 'production', 'screenplay', 'actor', 'scene', 'hollywood', 'television', 'series', 'streaming'],
+            'Philosophy': ['philosophy', 'philosophical', 'ethics', 'metaphysics', 'consciousness', 'existence', 'moral', 'theory', 'thinking', 'wisdom', 'ideas'],
+            'Health': ['health', 'healthcare', 'medical', 'medicine', 'doctors', 'patient', 'treatment', 'therapy', 'healing', 'wellness', 'diagnosis', 'care'],
+            'Fitness': ['fitness', 'exercise', 'workout', 'training', 'gym', 'strength', 'cardio', 'running', 'weight', 'body', 'muscle', 'physical'],
+            'Food': ['food', 'cooking', 'recipe', 'restaurant', 'diet', 'cuisine', 'chef', 'meal', 'ingredients', 'flavor', 'culinary', 'nutrition'],
+            'Travel': ['travel', 'destination', 'journey', 'adventure', 'vacation', 'tourism', 'countries', 'places', 'exploration', 'traveler', 'guide', 'itinerary'],
+            'Sports': ['sports', 'athlete', 'team', 'game', 'competition', 'player', 'championship', 'league', 'tournament', 'coach', 'stadium', 'match', 'season'],
+            'Education': ['education', 'learning', 'teaching', 'school', 'university', 'college', 'academic', 'classroom', 'student', 'professor', 'curriculum', 'knowledge'],
+            'Psychology': ['psychology', 'mind', 'mental', 'behavior', 'cognitive', 'therapy', 'psychologist', 'emotion', 'personality', 'brain', 'consciousness'],
+            'History': ['history', 'historical', 'past', 'era', 'century', 'ancient', 'medieval', 'modern', 'civilization', 'heritage', 'legacy', 'timeline'],
+            'Religion': ['religion', 'religious', 'faith', 'spiritual', 'god', 'belief', 'worship', 'prayer', 'sacred', 'theology', 'divine', 'tradition'],
+            'Design': ['design', 'designer', 'visual', 'aesthetic', 'graphic', 'interface', 'usability', 'layout', 'typography', 'product', 'creative', 'experience'],
+            'Fashion': ['fashion', 'style', 'clothing', 'trend', 'designer', 'outfit', 'collection', 'runway', 'brand', 'luxury', 'accessories', 'seasonal'],
+            'Gaming': ['gaming', 'video games', 'console', 'pc gaming', 'player', 'gameplay', 'esports', 'nintendo', 'playstation', 'xbox', 'streamer', 'multiplayer'],
+            'Cryptocurrency': ['crypto', 'cryptocurrency', 'bitcoin', 'ethereum', 'blockchain', 'defi', 'nft', 'token', 'mining', 'wallet', 'altcoin', 'exchange'],
+            'Media': ['media', 'news', 'journalism', 'reporting', 'press', 'publication', 'newspaper', 'magazine', 'broadcast', 'editorial', 'coverage'],
+            'Environment': ['environment', 'climate', 'sustainability', 'conservation', 'ecology', 'green', 'planet', 'renewable', 'carbon', 'pollution', 'natural'],
+            'Economics': ['economics', 'economic', 'economy', 'market', 'fiscal', 'monetary', 'inflation', 'gdp', 'trade', 'labor', 'supply', 'demand'],
+            'Society': ['society', 'social', 'community', 'population', 'demographic', 'civic', 'urban', 'rural', 'inequality', 'justice', 'welfare'],
+            'Foreign Policy': ['foreign policy', 'international', 'diplomacy', 'global', 'geopolitics', 'alliance', 'relations', 'sanctions', 'embassy', 'security'],
+            'Law': ['law', 'legal', 'rights', 'justice', 'court', 'judge', 'attorney', 'legislation', 'regulation', 'constitutional', 'criminal', 'civil'],
+            'Medicine': ['medicine', 'medical', 'clinical', 'doctor', 'patient', 'treatment', 'diagnosis', 'disease', 'research', 'pharmaceutical', 'drug', 'therapy'],
+            'Parenting': ['parenting', 'children', 'kids', 'family', 'mothers', 'fathers', 'baby', 'toddler', 'teenager', 'raising', 'childcare', 'development'],
+            'Urban Planning': ['urban', 'city', 'planning', 'development', 'architecture', 'infrastructure', 'municipal', 'housing', 'transportation', 'community'],
+            'Marketing': ['marketing', 'branding', 'advertising', 'promotion', 'audience', 'campaign', 'consumer', 'content', 'analytics', 'social media', 'seo'],
+            'Productivity': ['productivity', 'efficiency', 'workflow', 'organizing', 'habits', 'system', 'time management', 'tools', 'focus', 'process', 'output'],
+            'Career': ['career', 'job', 'professional', 'workplace', 'employment', 'hiring', 'resume', 'interview', 'skills', 'advancement', 'industry']
+        };
+        
+        // Function to analyze page content
+        async function analyzeSubstackContent(url) {
+            try {
+                // In a real implementation, you'd use a proxy server or API to fetch and analyze the content
+                // For this demo, we'll simulate the content analysis
+                
+                // Create URL for the about page and most recent posts
+                const hostname = new URL(url).hostname;
+                const aboutPageUrl = `https://${hostname}/about`;
+                
+                // Simulated content analysis - in real implementation, this would fetch actual content
+                // from the Substack site and analyze it
+                
+                // 1. Simulate analyzing the about page
+                const aboutPageKeywords = simulateContentAnalysis(hostname);
+                
+                // 2. Simulate analyzing recent posts
+                const recentPostsKeywords = simulatePostsAnalysis(hostname);
+                
+                // 3. Combine all keywords for analysis
+                const allKeywords = [...aboutPageKeywords, ...recentPostsKeywords];
+                
+                // 4. Determine primary and secondary topics based on keyword frequency
+                const topicScores = {};
+                topics.forEach(topic => {
+                    const keywords = topicKeywords[topic] || [];
+                    let score = 0;
+                    
+                    keywords.forEach(keyword => {
+                        allKeywords.forEach(contentWord => {
+                            if (contentWord.includes(keyword) || keyword.includes(contentWord)) {
+                                score++;
+                            }
+                        });
+                    });
+                    
+                    topicScores[topic] = score;
+                });
+                
+                // Sort topics by score
+                const sortedTopics = Object.entries(topicScores)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(entry => entry[0]);
+                
+                // Get primary and secondary topics
+                const primaryTopic = sortedTopics[0];
+                const secondaryTopic = sortedTopics[1];
+                
+                // 5. Identify relevant tags based on the content
+                const selectedTags = [];
+                const primaryKeywords = topicKeywords[primaryTopic] || [];
+                const secondaryKeywords = topicKeywords[secondaryTopic] || [];
+                
+                tags.forEach(tag => {
+                    const tagLower = tag.toLowerCase();
+                    const hasKeywordMatch = [...primaryKeywords, ...secondaryKeywords].some(
+                        keyword => tagLower.includes(keyword) || keyword.includes(tagLower)
+                    );
+                    
+                    const contentMatch = allKeywords.some(
+                        word => tagLower.includes(word) || word.includes(tagLower)
+                    );
+                    
+                    if (hasKeywordMatch || contentMatch) {
+                        selectedTags.push(tag);
+                    }
+                });
+                
+                // Limit to 5 most relevant tags
+                const relevantTags = selectedTags.slice(0, 5);
+                
+                // Generate relevant newsletters based on the analysis
+                const similarNewsletters = generateSimilarNewsletters(primaryTopic, secondaryTopic, relevantTags, 30);
+                
+                return {
+                    primaryTopic,
+                    secondaryTopic,
+                    tags: relevantTags,
+                    newsletters: similarNewsletters
+                };
+            } catch (error) {
+                console.error('Error analyzing Substack content:', error);
+                throw error;
+            }
+        }
+        
+        // Function to simulate content analysis from the about page
+        function simulateContentAnalysis(hostname) {
+            // Extract meaningful words from the hostname
+            const domainWords = hostname
+                .replace('substack.com', '')
+                .replace(/[.-]/g, ' ')
+                .toLowerCase()
+                .trim()
+                .split(/\s+/);
+            
+            // Create a seed from the hostname to ensure consistent but varied results
+            const seed = Array.from(hostname).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            
+            // Depending on the domain name, lean toward certain topics
+            let contentKeywords = [...domainWords];
+            
+            // Add some simulated "about page" content based on the domain name
+            if (domainWords.some(word => ['tech', 'code', 'dev', 'digital', 'product'].includes(word))) {
+                contentKeywords = contentKeywords.concat(['technology', 'software', 'innovation', 'digital', 'future']);
+            } else if (domainWords.some(word => ['money', 'invest', 'finance', 'econ', 'market'].includes(word))) {
+                contentKeywords = contentKeywords.concat(['finance', 'investment', 'markets', 'economics', 'strategy']);
+            } else if (domainWords.some(word => ['art', 'create', 'design', 'studio', 'creative'].includes(word))) {
+                contentKeywords = contentKeywords.concat(['creativity', 'design', 'expression', 'artistic', 'visual']);
+            } else if (domainWords.some(word => ['write', 'book', 'story', 'novel', 'read'].includes(word))) {
+                contentKeywords = contentKeywords.concat(['writing', 'storytelling', 'literature', 'fiction', 'narrative']);
+            } else {
+                // Add some random keywords from various categories
+                const randomTopics = getRandomItems(topics, 2, seed);
+                randomTopics.forEach(topic => {
+                    contentKeywords = contentKeywords.concat(getRandomItems(topicKeywords[topic], 3, seed));
+                });
+            }
+            
+            return contentKeywords;
+        }
+        
+        // Function to simulate analysis of recent posts
+        function simulatePostsAnalysis(hostname) {
+            // Create a seed from the hostname
+            const seed = Array.from(hostname).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            
+            // Select 2-3 topics based on the hostname seed
+            const selectedTopics = getRandomItems(topics, 3, seed);
+            
+            // Get keywords from those topics
+            let postKeywords = [];
+            selectedTopics.forEach(topic => {
+                const topicWords = topicKeywords[topic] || [];
+                postKeywords = postKeywords.concat(getRandomItems(topicWords, 5, seed + topics.indexOf(topic)));
+            });
+            
+            return postKeywords;
+        }
+        
+        // Function to get random items from an array with a seed
+        function getRandomItems(array, count, seed) {
+            const items = [];
+            const tempArray = [...array];
+            
+            // Simple seeded random function
+            const seededRandom = () => {
+                seed = (seed * 9301 + 49297) % 233280;
+                return seed / 233280;
+            };
+            
+            for (let i = 0; i < count && tempArray.length > 0; i++) {
+                const index = Math.floor(seededRandom() * tempArray.length);
+                items.push(tempArray.splice(index, 1)[0]);
+            }
+            
+            return items;
+        }
+        
+        // Generate similar newsletters based on topic analysis
+        function generateSimilarNewsletters(primaryTopic, secondaryTopic, tags, count) {
             const newsletters = [];
-            const authors = [
-                'Anna Johnson', 'Mark Williams', 'Sarah Davis', 'Robert Miller',
-                'Emily Wilson', 'Michael Brown', 'Jessica Taylor', 'David Jones',
-                'Lisa Martinez', 'James Anderson', 'Jennifer Nelson', 'Thomas White',
-                'Margaret Harris', 'Charles Lee', 'Linda Garcia', 'Christopher Clark'
-            ];
+            const relatedTopics = [primaryTopic, secondaryTopic, ...getRandomItems(topics.filter(t => t !== primaryTopic && t !== secondaryTopic), 3)];
+            
+            const namePrefixes = ['The', 'Daily', 'Weekly', 'Inside', '', 'Modern', 'Future', 'New', 'Next'];
+            const nameSuffixes = ['Dispatch', 'Insider', 'Report', 'Digest', 'Journal', 'Review', 'Observer', 'Notes', 'Letters', 'Guide'];
+            
+            // Create a seed from the topics
+            const seed = primaryTopic.length + secondaryTopic.length + tags.join('').length;
             
             for (let i = 0; i < count; i++) {
-                const randomTopicIndex = Math.floor(Math.random() * topics.length);
-                const randomTagsCount = Math.floor(Math.random() * 3) + 1;
-                const newsletterTags = [];
+                const topicIndex = i % relatedTopics.length;
+                const topic = relatedTopics[topicIndex];
                 
-                for (let j = 0; j < randomTagsCount; j++) {
-                    const randomTagIndex = Math.floor(Math.random() * tags.length);
-                    if (!newsletterTags.includes(tags[randomTagIndex])) {
-                        newsletterTags.push(tags[randomTagIndex]);
+                // Generate newsletter title
+                let title;
+                if (i % 3 === 0) {
+                    const prefix = namePrefixes[i % namePrefixes.length];
+                    title = prefix + (prefix ? ' ' : '') + topic;
+                } else if (i % 3 === 1) {
+                    const suffix = nameSuffixes[i % nameSuffixes.length];
+                    title = topic + ' ' + suffix;
+                } else {
+                    title = topic + ' ' + (i % 2 === 0 ? 'Weekly' : 'Today');
+                }
+                
+                // Generate author name
+                const firstNames = ['Alex', 'Jamie', 'Jordan', 'Casey', 'Taylor', 'Morgan', 'Riley', 'Quinn', 'Drew', 'Dakota', 'Avery', 'Kendall'];
+                const lastNames = ['Smith', 'Johnson', 'Williams', 'Jones', 'Brown', 'Davis', 'Miller', 'Wilson', 'Moore', 'Taylor', 'Anderson', 'Thomas'];
+                
+                const firstName = firstNames[(i + seed) % firstNames.length];
+                const lastName = lastNames[(i + seed * 2) % lastNames.length];
+                const author = firstName + ' ' + lastName;
+                
+                // Generate description
+                const descriptionPrefixes = [
+                    'A deep dive into',
+                    'Exploring the world of',
+                    'Insights and analysis on',
+                    'The essential guide to',
+                    'Thought-provoking perspectives on',
+                    'Cutting-edge coverage of'
+                ];
+                
+                const descriptionMiddles = [
+                    'trends, innovations, and breakthroughs',
+                    'ideas, people, and movements',
+                    'latest developments and timeless wisdom',
+                    'challenges, opportunities, and solutions',
+                    'stories, data, and expert opinions'
+                ];
+                
+                const descriptionSuffixes = [
+                    'for curious minds.',
+                    'that shape our world.',
+                    'delivered to your inbox.',
+                    'you won\'t find elsewhere.',
+                    'with actionable insights.'
+                ];
+                
+                const prefix = descriptionPrefixes[i % descriptionPrefixes.length];
+                const middle = descriptionMiddles[i % descriptionMiddles.length];
+                const suffix = descriptionSuffixes[i % descriptionSuffixes.length];
+                
+                const description = `${prefix} ${topic.toLowerCase()} ${middle} ${suffix}`;
+                
+                // Select tags for this newsletter
+                const newsletterTags = [];
+                if (i < tags.length) {
+                    newsletterTags.push(tags[i]);
+                }
+                
+                const additionalTags = Math.min(2, Math.floor(Math.random() * 3) + 1);
+                for (let j = 0; j < additionalTags; j++) {
+                    const randomTag = tags[Math.floor((i * j + seed) % tags.length)];
+                    if (!newsletterTags.includes(randomTag)) {
+                        newsletterTags.push(randomTag);
                     }
                 }
                 
-                const authorIndex = Math.floor(Math.random() * authors.length);
+                // Generate URL based on the title
+                const urlBase = title.toLowerCase().replace(/\s+/g, '');
+                const url = `https://${urlBase}.substack.com`;
                 
                 newsletters.push({
-                    title: `${topics[randomTopicIndex]} Insights`,
-                    author: authors[authorIndex],
-                    description: `A deep dive into ${topics[randomTopicIndex].toLowerCase()} trends, news, and perspectives. Weekly insights that will expand your understanding.`,
+                    title,
+                    author,
+                    description,
                     tags: newsletterTags,
-                    url: `https://${topics[randomTopicIndex].toLowerCase().replace(/\s+/g, '')}-insights.substack.com`,
+                    url,
                     image: `/api/placeholder/400/320`
                 });
             }
@@ -446,7 +714,7 @@
         };
         
         // Form submission handler
-        document.getElementById('searchForm').addEventListener('submit', function(e) {
+        document.getElementById('searchForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const substackUrl = document.getElementById('substackUrl').value;
@@ -465,13 +733,19 @@
             // Show loader
             document.getElementById('loader').style.display = 'block';
             
-            // Simulate API call with timeout
-            setTimeout(() => {
-                displayResults(substackUrl);
-            }, 2000);
+            try {
+                // Analyze Substack content
+                const analysisResults = await analyzeSubstackContent(substackUrl);
+                displayResults(substackUrl, analysisResults);
+            } catch (error) {
+                console.error('Error analyzing Substack:', error);
+                errorMessage.textContent = 'Unable to analyze this Substack. Please try again.';
+                errorMessage.style.display = 'block';
+                document.getElementById('loader').style.display = 'none';
+            }
         });
         
-        function displayResults(url) {
+        function displayResults(url, analysis) {
             // Hide loader
             document.getElementById('loader').style.display = 'none';
             
@@ -481,24 +755,8 @@
             // Set searched URL
             document.getElementById('searchedUrl').textContent = new URL(url).hostname;
             
-            // Generate random primary and secondary topics
-            const primaryTopic = topics[Math.floor(Math.random() * topics.length)];
-            
-            let secondaryTopic;
-            do {
-                secondaryTopic = topics[Math.floor(Math.random() * topics.length)];
-            } while (secondaryTopic === primaryTopic);
-            
-            // Generate random related tags (3-5)
-            const relatedTagsCount = Math.floor(Math.random() * 3) + 3;
-            const relatedTags = [];
-            
-            for (let i = 0; i < relatedTagsCount; i++) {
-                const randomTag = tags[Math.floor(Math.random() * tags.length)];
-                if (!relatedTags.includes(randomTag)) {
-                    relatedTags.push(randomTag);
-                }
-            }
+            // Extract analysis results
+            const { primaryTopic, secondaryTopic, tags: relatedTags, newsletters } = analysis;
             
             // Display topics and tags
             const topicsGrid = document.getElementById('topicsGrid');
@@ -521,8 +779,7 @@
                 topicsGrid.appendChild(tagElement);
             });
             
-            // Generate and display newsletters
-            const newsletters = generateMockNewsletters(30);
+            // Display similar newsletters
             const newslettersGrid = document.getElementById('newslettersGrid');
             newslettersGrid.innerHTML = '';
             
